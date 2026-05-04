@@ -1,9 +1,5 @@
-let interval
-
 function init(bot) {
-  clearInterval(interval)
-
-  interval = setInterval(() => {
+  setInterval(() => {
     if (!bot.entity) return
 
     bot.setControlState('forward', true)
