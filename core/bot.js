@@ -1,23 +1,23 @@
 const mineflayer = require('mineflayer')
 const config = require('../config')
 
-// systems
 const movement = require('../systems/movement')
 const combat = require('../systems/combat')
 const follow = require('../systems/follow')
 const chat = require('../systems/chat')
 const jumpscare = require('../systems/jumpscare')
 
-let reconnecting = false
 let reconnectDelay = 5000
 
-function createHerobrine() {
+function startBot(updateStatus) {
+  updateStatus("connecting")
+
   const bot = mineflayer.createBot(config)
 
   bot.once('spawn', () => {
-    console.log('Herobrine has joined...')
+    updateStatus("online")
+    console.log("[BOT] Joined")
 
-    // initialize all systems
     movement.init(bot)
     combat.init(bot)
     follow.init(bot)
@@ -25,35 +25,31 @@ function createHerobrine() {
     jumpscare.init(bot)
   })
 
-  // 💀 prevent multiple reconnect spam
   bot.on('end', () => {
-    if (reconnecting) return
-    reconnecting = true
-
-    console.log('Disconnected... retrying in', reconnectDelay)
+    updateStatus("disconnected")
+    console.log("[BOT] Disconnected")
 
     setTimeout(() => {
-      reconnecting = false
       reconnectDelay = Math.min(reconnectDelay * 1.5, 60000)
-      createHerobrine()
+      startBot(updateStatus)
     }, reconnectDelay)
   })
 
-  bot.on('kicked', (reason) => {
-    console.log('Kicked:', reason)
-  })
-
   bot.on('error', (err) => {
-    console.log('Error:', err)
+    console.log("[ERROR]", err.message)
+    updateStatus("error")
   })
 
-  // ❤️ auto respawn
+  bot.on('kicked', (r) => {
+    console.log("[KICKED]", r)
+  })
+
   bot.on('death', () => {
-    console.log('I died... returning')
+    console.log("[BOT] Died")
     setTimeout(() => {
       try { bot.respawn() } catch {}
     }, 3000)
   })
 }
 
-module.exports = { createHerobrine }
+module.exports = { startBot }
