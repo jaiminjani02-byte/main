@@ -1,5 +1,5 @@
-let attackInterval = null
-let currentTarget = null
+let target = null
+let interval = null
 
 function init(bot) {
   bot.on('entityHurt', (entity) => {
@@ -14,33 +14,17 @@ function init(bot) {
 
     if (!attacker) return
 
-    startAttack(bot, attacker)
+    console.log("[COMBAT] Attacked")
+    target = attacker
+
+    clearInterval(interval)
+    interval = setInterval(() => {
+      if (!target || !target.position) return clearInterval(interval)
+
+      const dist = bot.entity.position.distanceTo(target.position)
+      if (dist <= 3) bot.attack(target)
+    }, 2000)
   })
-}
-
-function startAttack(bot, target) {
-  if (currentTarget === target) return
-
-  stopAttack()
-  currentTarget = target
-
-  bot.chat("You shouldn't have done that.")
-
-  attackInterval = setInterval(() => {
-    if (!target || !target.position) return stopAttack()
-
-    const dist = bot.entity.position.distanceTo(target.position)
-
-    if (dist <= 3) {
-      try { bot.attack(target) } catch {}
-    }
-  }, 2000)
-}
-
-function stopAttack() {
-  clearInterval(attackInterval)
-  attackInterval = null
-  currentTarget = null
 }
 
 module.exports = { init }
