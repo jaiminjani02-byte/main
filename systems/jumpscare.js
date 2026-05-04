@@ -1,29 +1,23 @@
 function init(bot) {
   setInterval(() => {
-    if (!bot.entity) return
-
     const players = Object.values(bot.players)
       .map(p => p.entity)
-      .filter(e => e && e.position)
+      .filter(Boolean)
 
-    if (players.length === 0) return
+    if (!players.length) return
+    if (Math.random() > 0.3) return
 
-    const target = players[Math.floor(Math.random() * players.length)]
+    const t = players[Math.floor(Math.random() * players.length)]
 
-    // low chance trigger
-    if (Math.random() > 0.25) return
+    console.log("[JUMPSCARE]")
 
-    // face instantly (creepy snap)
-    bot.lookAt(target.position)
-
-    // message
+    bot.lookAt(t.position)
     bot.chat("Don't turn around.")
 
-    // short forward burst
     bot.setControlState('forward', true)
-    setTimeout(() => bot.setControlState('forward', false), 900)
+    setTimeout(() => bot.setControlState('forward', false), 800)
 
-  }, 600000) // every 10 mins
+  }, 600000)
 }
 
 module.exports = { init }
