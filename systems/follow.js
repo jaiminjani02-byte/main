@@ -1,26 +1,20 @@
-let followInterval = null
-let target = null
+let interval = null
 
 function init(bot) {
   bot.followPlayer = (name) => {
     const player = bot.players[name]?.entity
-    if (!player) {
-      bot.chat("I can't find you.")
-      return
-    }
+    if (!player) return bot.chat("I can't find you.")
 
-    target = player
-    bot.chat("I'm coming...")
+    console.log("[FOLLOW] " + name)
 
-    clearInterval(followInterval)
+    clearInterval(interval)
+    interval = setInterval(() => {
+      if (!player.position) return
 
-    followInterval = setInterval(() => {
-      if (!target || !target.position) return
-
-      const dist = bot.entity.position.distanceTo(target.position)
+      const dist = bot.entity.position.distanceTo(player.position)
 
       if (dist > 3) {
-        bot.lookAt(target.position)
+        bot.lookAt(player.position)
         bot.setControlState('forward', true)
       } else {
         bot.setControlState('forward', false)
@@ -29,10 +23,8 @@ function init(bot) {
   }
 
   bot.stopAll = () => {
-    clearInterval(followInterval)
-    target = null
+    clearInterval(interval)
     bot.setControlState('forward', false)
-    bot.chat("I stopped.")
   }
 }
 
