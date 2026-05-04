@@ -1,17 +1,18 @@
-let lastReply = 0
+let last = 0
 
 function init(bot) {
-  bot.on('chat', (username, message) => {
-    if (username === bot.username) return
-    if (!message) return
+  bot.on('chat', (u, m) => {
+    if (u === bot.username) return
+
+    console.log(`[CHAT] ${u}: ${m}`)
 
     const now = Date.now()
-    if (now - lastReply < 5000) return
+    if (now - last < 5000) return
 
-    const msg = message.toLowerCase()
+    const msg = m.toLowerCase()
 
     if (msg.startsWith('!follow')) {
-      const name = message.split(' ')[1]
+      const name = m.split(' ')[1]
       if (name) bot.followPlayer(name)
       return
     }
@@ -21,17 +22,11 @@ function init(bot) {
       return
     }
 
-    if (msg.includes('hi') || msg.includes('hello')) {
-      bot.chat("I've been watching you.")
-    } else if (msg.includes('where')) {
-      bot.chat("Closer than you think.")
-    } else if (msg.includes('who')) {
-      bot.chat("You already know.")
-    } else if (msg.includes('herobrine')) {
-      bot.chat("I see everything.")
-    }
+    if (msg.includes('hi')) bot.chat("I've been watching you.")
+    else if (msg.includes('where')) bot.chat("Behind you.")
+    else if (msg.includes('herobrine')) bot.chat("I see everything.")
 
-    lastReply = now
+    last = now
   })
 }
 
