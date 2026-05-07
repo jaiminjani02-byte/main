@@ -1,5 +1,5 @@
 module.exports = {
-  host: 'darkempiresmpserver.dpdns.org',
+  host: 'stableuniverseempire.aternos.me',
   port: 25797,
   username: 'Herobrine',
   auth: 'offline',
