@@ -7,16 +7,21 @@ const follow = require('../systems/follow')
 const chat = require('../systems/chat')
 const jumpscare = require('../systems/jumpscare')
 
-let reconnectDelay = 5000
+let reconnecting = false
 
 function startBot(updateStatus) {
+
   updateStatus("connecting")
+
+  console.log("[BOT] Creating bot...")
 
   const bot = mineflayer.createBot(config)
 
   bot.once('spawn', () => {
+    reconnecting = false
+
     updateStatus("online")
-    console.log("[BOT] Joined")
+    console.log("[BOT] Joined server")
 
     movement.init(bot)
     combat.init(bot)
@@ -26,29 +31,38 @@ function startBot(updateStatus) {
   })
 
   bot.on('end', () => {
-    updateStatus("disconnected")
     console.log("[BOT] Disconnected")
 
+    updateStatus("disconnected")
+
+    if (reconnecting) return
+    reconnecting = true
+
+    console.log("[BOT] Reconnecting in 10 seconds...")
+
     setTimeout(() => {
-      reconnectDelay = Math.min(reconnectDelay * 1.5, 60000)
       startBot(updateStatus)
-    }, reconnectDelay)
+    }, 10000)
+  })
+
+  bot.on('kicked', (reason) => {
+    console.log("[KICKED]", reason)
   })
 
   bot.on('error', (err) => {
     console.log("[ERROR]", err.message)
-    updateStatus("error")
-  })
-
-  bot.on('kicked', (r) => {
-    console.log("[KICKED]", r)
   })
 
   bot.on('death', () => {
     console.log("[BOT] Died")
-    setTimeout(() => {
-      try { bot.respawn() } catch {}
-    }, 3000)
+  })
+
+  process.on('uncaughtException', (err) => {
+    console.log("[CRASH]", err.message)
+  })
+
+  process.on('unhandledRejection', (err) => {
+    console.log("[REJECTION]", err)
   })
 }
 
