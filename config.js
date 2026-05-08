@@ -3,5 +3,5 @@ module.exports = {
   port: 49705,
   username: 'Herobrine',
   auth: 'offline',
-  version: false
+  version: '1.21.11'
 }
